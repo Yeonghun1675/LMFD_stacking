@@ -1,0 +1,68 @@
+# Self assembly with ReaxFF
+# 
+#
+#To run the code write: 			lmp_serial -in Main.in
+#########################################################################################################################################
+
+##List of variables
+variable        t index 300                     # temperature in kelvin
+variable        p index 1				# Pressure in atm
+variable        s index 0.25			# Time step
+variable        d index 1000000			# Simulation time (100 ps)
+
+
+##Initialization:
+units			real
+dimension		3
+boundary		p p f
+atom_style 	    charge
+
+##Importing MOF strucutre data
+read_data 		data/(index).data
+pair_style 		reax/c NULL safezone 1.6 mincap 100
+pair_coeff    	* * reax.reax C H O N
+
+group GO id <= 961
+group LMFD id  >= 961
+group g1 id 30
+group new id >= (newindex)
+
+
+##Settings
+neighbor		2.0 bin
+timestep		${s}
+run_style		verlet
+
+fix freeze g1 setforce 0.0 0.0 0.0
+
+fix             1 all qeq/reax 1 0.0 10.0 1.0e-6 reax/c
+#minimize       	0.0 1.0e-4 1000 10000
+reset_timestep  0
+
+
+######################################################### Simulation ##############################################
+
+(velocity)
+fix             2 all nvt temp ${t} ${t} 100
+
+fix             walls LMFD wall/reflect zhi 60
+
+thermo_style 	custom step temp press vol lx
+
+##output
+dump			 1 GO custom 1000 dump_rGO/dump_GO_(index+1).xyz element x y z
+dump_modify 	 1 element C H O N
+
+dump             2 LMFD custom 1000 dump_LMFD/dump_LMFD_(index+1).xyz element x y z
+dump_modify      2 element C H O N
+
+dump             3 all custom 1000 dump_system/dump_system_(index+1).xyz element x y z
+dump_modify      3 element C H O N
+
+thermo			1000
+run				${d}
+
+
+write_data      write_data/data.(index+1)
+print "Simulation is done !!!"
+#####################################################################################################################

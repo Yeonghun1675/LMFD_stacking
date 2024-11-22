@@ -1,0 +1,42 @@
+# Initial configuration of rGO with LMFD
+# By: Yeonghun
+# Modified : Yeonghun
+# Date: 2021.06.24
+#
+# To run the code    packmol < Input_file.inp 
+#################################################
+
+tolerance 4.0
+#seed -1
+filetype xyz
+output packmol_structure/(output).xyz
+
+# cell size = 24.6000 25.5651  50.000
+
+structure tmp_structure/(index).xyz
+  number 1				
+  fixed 0.0 0.0 0.0   0.0 0.0 0.0
+end structure
+
+structure (LMFD).xyz
+  number 20
+  constrain_rotation x 0. 0.
+  constrain_rotation y 0. 0.
+  constrain_rotation z 0. 0.
+  over plane 1.0 0.0 0.0 (x1)
+  below plane 1.0 0.0 0.0 (x2)
+  over plane 0.0 1.0 0.0 (y1)
+  below plane 0.0 1.0 0.0 (y2)
+  over plane 0.0 0.0 1.0 (z1)
+  below plane 0.0 0.0 1.0 (z2)
+
+end structure
+
+
+# dz = 19.33343
+# zlo = o
+# zhi = thickness + offset(sigma) + dz + offset(sigma) = 3.57371 + 3.4 + 19.33343 + 3.4 = 29.70714
+# Water_lower_z = graphene thinckness + offset(sigma) = 3.6 + 3.4 = 5
+# Water_upper_z = zhi - offset(sigma) = 29.70714 - 3.4 = 26.30714
+
+
